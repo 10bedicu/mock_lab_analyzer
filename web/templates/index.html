@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Message Queue - Lab Analyzer{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold text-gray-800">Message Queue</h2>
+        <form method="POST" action="{{ url_for('main.clear_processed') }}" class="inline">
+            <button type="submit" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+                Clear Processed
+            </button>
+        </form>
+    </div>
+
+    {% if messages %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-100 border-b">
+                    <tr>
+                        <th class="text-left py-3 px-4 font-semibold text-sm text-gray-700">ID</th>
+                        <th class="text-left py-3 px-4 font-semibold text-sm text-gray-700">Patient</th>
+                        <th class="text-left py-3 px-4 font-semibold text-sm text-gray-700">Test</th>
+                        <th class="text-left py-3 px-4 font-semibold text-sm text-gray-700">Received At</th>
+                        <th class="text-left py-3 px-4 font-semibold text-sm text-gray-700">Status</th>
+                        <th class="text-center py-3 px-4 font-semibold text-sm text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in messages %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-3 px-4 text-sm text-gray-600 font-mono">
+                            {{ message.id[:8] }}...
+                        </td>
+                        <td class="py-3 px-4 text-sm">
+                            <div class="font-semibold text-gray-800">{{ message.parsed_data.patient_name }}</div>
+                            <div class="text-xs text-gray-500">ID: {{ message.parsed_data.patient_id }}</div>
+                        </td>
+                        <td class="py-3 px-4 text-sm">
+                            <div class="font-semibold text-gray-800">{{ message.parsed_data.test_name or 'N/A' }}</div>
+                            <div class="text-xs text-gray-500">{{ message.parsed_data.test_id }}</div>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-gray-600">
+                            {{ message.received_at[:19] }}
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold status-{{ message.status }}">
+                                {{ message.status.upper() }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            {% if message.status == 'pending' %}
+                                <div class="flex justify-center space-x-2">
+                                    <a href="{{ url_for('main.process_message_form', message_id=message.id) }}" 
+                                       class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded transition text-sm">
+                                        Process
+                                    </a>
+                                    <form method="POST" action="{{ url_for('main.discard_message', message_id=message.id) }}" class="inline">
+                                        <button type="submit" 
+                                                class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded transition text-sm"
+                                                onclick="return confirm('Are you sure you want to discard this message?')">
+                                            Discard
+                                        </button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <span class="text-gray-400 text-sm">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            </svg>
+            <p class="text-gray-500 text-lg">No messages in queue</p>
+            <p class="text-gray-400 text-sm mt-2">Messages will appear here when received</p>
+        </div>
+    {% endif %}
+</div>
+
+<div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <p class="text-sm text-blue-700">
+                <strong>Info:</strong> Pending messages can be processed or discarded. Processed messages are sent to the MLLP server.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

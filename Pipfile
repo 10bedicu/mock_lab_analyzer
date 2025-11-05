@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 aiohttp = "*"
 hl7 = "*"
+flask = "*"
+aiorun = "*"
+flask-httpauth = "*"
 
 [dev-packages]
 

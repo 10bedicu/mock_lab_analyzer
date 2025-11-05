@@ -12,4 +12,4 @@ RUN pipenv install --system --deploy
 
 COPY . .
 
-CMD ["python", "lab_analyzer.py"]
+CMD ["python", "run.py"]
