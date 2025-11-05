@@ -119,7 +119,8 @@ def process_message_submit(message_id):
         loop.close()
         
         if success:
-            message_queue.update_status(message_id, 'processed')
+            # Store the result message along with the status update
+            message_queue.update_status(message_id, 'processed', result_message)
             flash('Message processed and sent successfully!', 'success')
         else:
             flash('Failed to send message to MLLP server', 'error')
@@ -130,6 +131,18 @@ def process_message_submit(message_id):
         return redirect(url_for('main.process_message_form', message_id=message_id))
     
     return redirect(url_for('main.index'))
+
+
+@bp.route('/message/<message_id>/view', methods=['GET'])
+@auth.login_required
+def view_message(message_id):
+    """View a processed message with all details."""
+    message = message_queue.get_message(message_id)
+    if not message:
+        flash('Message not found', 'error')
+        return redirect(url_for('main.index'))
+    
+    return render_template('view.html', message=message)
 
 
 @bp.route('/clear-processed', methods=['POST'])

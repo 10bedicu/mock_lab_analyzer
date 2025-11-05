@@ -63,6 +63,11 @@
                                         </button>
                                     </form>
                                 </div>
+                            {% elif message.status == 'processed' %}
+                                <a href="{{ url_for('main.view_message', message_id=message.id) }}" 
+                                   class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded transition text-sm inline-block">
+                                    View Details
+                                </a>
                             {% else %}
                                 <span class="text-gray-400 text-sm">-</span>
                             {% endif %}

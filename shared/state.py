@@ -33,6 +33,7 @@ class MessageQueue:
                 'status': 'pending',  # pending, processed, discarded
                 'received_at': datetime.now().isoformat(),
                 'processed_at': None,
+                'result_message': None,  # Store generated HL7 result
             }
         
         return message_id
@@ -52,13 +53,14 @@ class MessageQueue:
         with self._lock:
             return {k: v for k, v in self._messages.items() if v['status'] == 'pending'}
     
-    def update_status(self, message_id: str, status: str) -> bool:
+    def update_status(self, message_id: str, status: str, result_message: Optional[str] = None) -> bool:
         """
         Update the status of a message.
         
         Args:
             message_id: UUID of the message
             status: New status (pending, processed, discarded)
+            result_message: Optional HL7 result message
             
         Returns:
             True if updated successfully, False if message not found
@@ -68,6 +70,8 @@ class MessageQueue:
                 self._messages[message_id]['status'] = status
                 if status in ['processed', 'discarded']:
                     self._messages[message_id]['processed_at'] = datetime.now().isoformat()
+                if result_message:
+                    self._messages[message_id]['result_message'] = result_message
                 return True
             return False
     
