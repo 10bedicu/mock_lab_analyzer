@@ -1,4 +1,6 @@
 import asyncio
+from uuid import uuid4
+from datetime import datetime
 
 import hl7
 from hl7.mllp import open_hl7_connection
@@ -20,10 +22,12 @@ async def main():
     #     OBX|4|NM|777-3^Platelets [#/volume] in Blood by Automated count^LN||||||||||O
     #     SPM|1|5a39772b-09da-42fe-856d-f385ee243c81|||20251006151045
     # """
-    message = """MSH|^~\&|edbc790a-9eb9-4953-a698-a1082177fa43|FACILITY WITH PATIENTS|LAB_ANALYZER|LAB|20251030144251||OML^O21^OML_O21|b9559079-961b-4018-a3e9-044b11f628ad|P|2.5.1||||NE|AL
+    eid = uuid4()
+    time = datetime.now().strftime("%Y%m%d%H%M%S")
+    message = f"""MSH|^~\&|edbc790a-9eb9-4953-a698-a1082177fa43|FACILITY WITH PATIENTS|LAB_ANALYZER|LAB|{time}||OML^O21^OML_O21|{eid}|P|2.5.1||||NE|AL
     PID|1||2b278730-ec9d-457c-bbf2-f1bb1f98b60b||Nanda^Damini||19650601000000|M
-    ORC|NW|b9559079-961b-4018-a3e9-044b11f628ad|b9559079-961b-4018-a3e9-044b11f628ad|||||20251030130639
-    OBR|1|b9559079-961b-4018-a3e9-044b11f628ad||26604007^Complete blood count^http://snomed.info/sct||20251030130639|"""
+    ORC|NW|{eid}|{eid}|||||{time}
+    OBR|1|{eid}||26604007^Complete blood count^http://snomed.info/sct||{time}|"""
     # Format the message to remove unnecessary whitespaces and replace newlines with \r
     message = '\r'.join(line.strip() for line in message.strip().split('\n'))
 
