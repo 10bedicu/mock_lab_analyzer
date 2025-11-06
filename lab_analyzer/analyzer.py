@@ -98,16 +98,21 @@ class LabAnalyzerService:
             
             # Map interpretation to HL7 abnormal flags
             abnormal_flag = 'N'  # Normal
-            if interpretation.lower() in ['high', 'abnormal', 'elevated']:
+            _interpretation = interpretation.lower()
+            if _interpretation in ['normal', 'n']:
+                abnormal_flag = 'N'
+            elif _interpretation in ['abnormal', 'a']:
+                abnormal_flag = 'A'
+            elif _interpretation in ['high', 'h']:
                 abnormal_flag = 'H'
-            elif interpretation.lower() in ['low', 'decreased']:
+            elif _interpretation in ['low', 'l']:
                 abnormal_flag = 'L'
-            elif interpretation.lower() in ['critical', 'critical high']:
+            elif _interpretation in ['critical', 'critical high', 'hh']:
                 abnormal_flag = 'HH'
-            elif interpretation.lower() in ['critical low']:
+            elif _interpretation in ['critical low', 'll']:
                 abnormal_flag = 'LL'
-            
-            obx = f"OBX|{idx}|NM|{field['id']}^{field['name']}^http://loinc.org||{value:.2f}|{field['unit']}|{field['reference']}|{abnormal_flag}|||F|||{timestamp}||||||{interpretation}"
+
+            obx = f"OBX|{idx}|NM|{field['id']}^{field['name']}^http://loinc.org||{value:.2f}|{field['unit']}|{field['reference']}|{abnormal_flag}|||F|||{timestamp}||||||"
             segments.append(obx)
         
         # Join segments with carriage return
