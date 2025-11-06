@@ -28,7 +28,7 @@ class LabAnalyzerService:
             'LP99237-7': [
                 {'id': '717-9', 'name': 'Hemoglobin [Presence] in Blood', 'unit': 'g/dL', 'reference': '12.0-16.0 (F) / 13.0-17.0 (M)', 'value': '13.2', 'interpretation': 'Normal'},
                 {'id': 'LP15101-6', 'name': 'Hematocrit', 'unit': '%', 'reference': '36-46 (F) / 40-52 (M)', 'value': '39.5', 'interpretation': 'Normal'},
-                {'id': 'LP393833-1', 'name': 'Leukocyte phosphatase | White blood cells | Hematology and Cell counts', 'unit': '10*9/L', 'reference': '4.0-10.0', 'value': '11.8', 'interpretation': 'Abnormal'},
+                {'id': 'LP157588-7', 'name': 'Leukocytes Count', 'unit': '10*9/L', 'reference': '4.0-10.0', 'value': '11.8', 'interpretation': 'Abnormal'},
                 {'id': 'LP7536-8', 'name': 'RBC', 'unit': '10*12/L', 'reference': '4.2-5.4', 'value': '4.8', 'interpretation': 'Normal'},
             ],
             'BMP': [
