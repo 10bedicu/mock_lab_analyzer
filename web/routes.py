@@ -97,20 +97,26 @@ def process_message_submit(message_id):
     test_id = parsed_data.get('test_id', '')
     obs_fields = lab_service.get_observation_fields(test_id)
     
-    # Collect user-provided values
+    # Collect user-provided values and interpretations
     observation_values = {}
+    observation_interpretations = {}
     for field in obs_fields:
         value = request.form.get(f"obs_{field['id']}")
+        interpretation = request.form.get(f"interp_{field['id']}")
+        
         if value:
             try:
                 observation_values[field['id']] = float(value)
             except ValueError:
                 flash(f"Invalid value for {field['name']}", 'error')
                 return redirect(url_for('main.process_message_form', message_id=message_id))
+        
+        if interpretation:
+            observation_interpretations[field['id']] = interpretation
     
-    # Generate ORU message with user-provided values
+    # Generate ORU message with user-provided values and interpretations
     try:
-        result_message = lab_service.create_result_message(parsed_data, observation_values)
+        result_message = lab_service.create_result_message(parsed_data, observation_values, observation_interpretations)
         
         # Send to MLLP server asynchronously
         loop = asyncio.new_event_loop()
@@ -119,8 +125,9 @@ def process_message_submit(message_id):
         loop.close()
         
         if success:
-            # Store the result message along with the status update
-            message_queue.update_status(message_id, 'processed', result_message)
+            # Store the result message along with values and interpretations
+            message_queue.update_status(message_id, 'processed', result_message, 
+                                      observation_values, observation_interpretations)
             flash('Message processed and sent successfully!', 'success')
         else:
             flash('Failed to send message to MLLP server', 'error')

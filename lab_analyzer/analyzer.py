@@ -23,41 +23,44 @@ class LabAnalyzerService:
         self.mllp_host, self.mllp_port = Config.get_mllp_host_port()
     
     def get_observation_fields(self, test_id: str) -> List[Dict[str, str]]:
-        """Get the observation fields required for a test type."""
+        """Get the observation fields required for a test type with pre-filled values and interpretations."""
         test_fields = {
-            'CBC': [
-                {'id': '6690-2', 'name': 'White Blood Count', 'unit': '10^3/uL', 'reference': '4.0-11.0'},
-                {'id': '789-8', 'name': 'Red Blood Count', 'unit': '10^6/uL', 'reference': '4.2-5.9'},
-                {'id': '718-7', 'name': 'Hemoglobin', 'unit': 'g/dL', 'reference': '12.0-17.0'},
-                {'id': '4544-3', 'name': 'Hematocrit', 'unit': '%', 'reference': '36.0-50.0'},
+            'LP99237-7': [
+                {'id': '717-9', 'name': 'Hemoglobin [Presence] in Blood', 'unit': 'g/dL', 'reference': '12.0-16.0 (F) / 13.0-17.0 (M)', 'value': '13.2', 'interpretation': 'Normal'},
+                {'id': 'LP15101-6', 'name': 'Hematocrit', 'unit': '%', 'reference': '36-46 (F) / 40-52 (M)', 'value': '39.5', 'interpretation': 'Normal'},
+                {'id': 'LP393833-1', 'name': 'Leukocyte phosphatase | White blood cells | Hematology and Cell counts', 'unit': '10*9/L', 'reference': '4.0-10.0', 'value': '11.8', 'interpretation': 'Abnormal'},
+                {'id': 'LP7536-8', 'name': 'RBC', 'unit': '10*12/L', 'reference': '4.2-5.4', 'value': '4.8', 'interpretation': 'Normal'},
             ],
             'BMP': [
-                {'id': '2345-7', 'name': 'Glucose', 'unit': 'mg/dL', 'reference': '70-100'},
-                {'id': '3094-0', 'name': 'Blood Urea Nitrogen', 'unit': 'mg/dL', 'reference': '7-20'},
-                {'id': '2160-0', 'name': 'Creatinine', 'unit': 'mg/dL', 'reference': '0.6-1.2'},
-                {'id': '2951-2', 'name': 'Sodium', 'unit': 'mmol/L', 'reference': '136-145'},
-                {'id': '2823-3', 'name': 'Potassium', 'unit': 'mmol/L', 'reference': '3.5-5.0'},
+                {'id': '2345-7', 'name': 'Glucose', 'unit': 'mg/dL', 'reference': '70-100', 'value': '92', 'interpretation': 'Normal'},
+                {'id': '3094-0', 'name': 'Blood Urea Nitrogen', 'unit': 'mg/dL', 'reference': '7-20', 'value': '15', 'interpretation': 'Normal'},
+                {'id': '2160-0', 'name': 'Creatinine', 'unit': 'mg/dL', 'reference': '0.6-1.2', 'value': '0.9', 'interpretation': 'Normal'},
+                {'id': '2951-2', 'name': 'Sodium', 'unit': 'mmol/L', 'reference': '136-145', 'value': '140', 'interpretation': 'Normal'},
+                {'id': '2823-3', 'name': 'Potassium', 'unit': 'mmol/L', 'reference': '3.5-5.0', 'value': '4.2', 'interpretation': 'Normal'},
             ],
             'GLUCOSE': [
-                {'id': '1554-5', 'name': 'Glucose', 'unit': 'mg/dL', 'reference': '70-105'},
+                {'id': '1554-5', 'name': 'Glucose', 'unit': 'mg/dL', 'reference': '70-105', 'value': '88', 'interpretation': 'Normal'},
             ],
             '1554-5': [
-                {'id': '1554-5', 'name': 'Glucose', 'unit': 'mg/dL', 'reference': '70-105'},
+                {'id': '1554-5', 'name': 'Glucose', 'unit': 'mg/dL', 'reference': '70-105', 'value': '88', 'interpretation': 'Normal'},
             ],
             '26604007': [
-                {'id': 'LP32067-8', 'name': 'Hemoglobin', 'unit': 'g/dL', 'reference': '12.0-17.0'},
-                {'id': 'LP15101-6', 'name': 'Hematocrit', 'unit': '%', 'reference': '36.0-50.0'},
-                {'id': 'LA12896-9', 'name': 'Erythrocytes', 'unit': '10*6/uL', 'reference': '4.2-5.9'},
-                {'id': 'LP7631-7', 'name': 'Platelets', 'unit': '10*3/uL', 'reference': '150-400'},
+                {'id': 'LP32067-8', 'name': 'Hemoglobin', 'unit': 'g/dL', 'reference': '12.0-17.0', 'value': '13.2', 'interpretation': 'Normal'},
+                {'id': 'LP15101-6', 'name': 'Hematocrit', 'unit': '%', 'reference': '36.0-50.0', 'value': '39.5', 'interpretation': 'Normal'},
+                {'id': 'LA12896-9', 'name': 'Erythrocytes', 'unit': '10*6/uL', 'reference': '4.0-10.0', 'value': '11.8', 'interpretation': 'Abnormal'},
+                {'id': 'LP7631-7', 'name': 'Platelets', 'unit': '10*3/uL', 'reference': '150-400', 'value': '250', 'interpretation': 'Normal'},
             ],
         }
         
         test_id_clean = test_id.strip()
         return test_fields.get(test_id_clean, [])
     
-    def create_result_message(self, parsed_data: Dict[str, Any], observation_values: Dict[str, float]) -> str:
-        """Create an ORU^R01 message with user-provided observation values."""
+    def create_result_message(self, parsed_data: Dict[str, Any], observation_values: Dict[str, float], observation_interpretations: Dict[str, str] = None) -> str:
+        """Create an ORU^R01 message with user-provided observation values and interpretations."""
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        
+        if observation_interpretations is None:
+            observation_interpretations = {}
         
         # Build HL7 message segments
         segments = []
@@ -87,11 +90,24 @@ class LabAnalyzerService:
             obr = f"OBR|1|{parsed_data['placer_order']}|{parsed_data['filler_order']}|{parsed_data['test_id']}^{parsed_data['test_name']}|||{timestamp}|||||||{timestamp}|||{parsed_data['ordering_provider']}||||||||F"
         segments.append(obr)
         
-        # OBX segments with user-provided values
+        # OBX segments with user-provided values and interpretations
         obs_fields = self.get_observation_fields(parsed_data['test_id'])
         for idx, field in enumerate(obs_fields, 1):
             value = observation_values.get(field['id'], 0.0)
-            obx = f"OBX|{idx}|NM|{field['id']}^{field['name']}^http://loinc.org||{value:.2f}|{field['unit']}|{field['reference']}|N|||F|||{timestamp}"
+            interpretation = observation_interpretations.get(field['id'], 'Normal')
+            
+            # Map interpretation to HL7 abnormal flags
+            abnormal_flag = 'N'  # Normal
+            if interpretation.lower() in ['high', 'abnormal', 'elevated']:
+                abnormal_flag = 'H'
+            elif interpretation.lower() in ['low', 'decreased']:
+                abnormal_flag = 'L'
+            elif interpretation.lower() in ['critical', 'critical high']:
+                abnormal_flag = 'HH'
+            elif interpretation.lower() in ['critical low']:
+                abnormal_flag = 'LL'
+            
+            obx = f"OBX|{idx}|NM|{field['id']}^{field['name']}^http://loinc.org||{value:.2f}|{field['unit']}|{field['reference']}|{abnormal_flag}|||F|||{timestamp}||||||{interpretation}"
             segments.append(obx)
         
         # Join segments with carriage return

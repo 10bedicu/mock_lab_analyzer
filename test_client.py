@@ -27,7 +27,7 @@ async def main():
     message = f"""MSH|^~\&|edbc790a-9eb9-4953-a698-a1082177fa43|FACILITY WITH PATIENTS|LAB_ANALYZER|LAB|{time}||OML^O21^OML_O21|{eid}|P|2.5.1||||NE|AL
     PID|1||2b278730-ec9d-457c-bbf2-f1bb1f98b60b||Nanda^Damini||19650601000000|M
     ORC|NW|{eid}|{eid}|||||{time}
-    OBR|1|{eid}||26604007^Complete blood count^http://snomed.info/sct||{time}|"""
+    OBR|1|{eid}||LP99237-7^Complete blood count^http://loinc.org||{time}|"""
     # Format the message to remove unnecessary whitespaces and replace newlines with \r
     message = '\r'.join(line.strip() for line in message.strip().split('\n'))
 

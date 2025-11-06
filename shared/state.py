@@ -34,6 +34,8 @@ class MessageQueue:
                 'received_at': datetime.now().isoformat(),
                 'processed_at': None,
                 'result_message': None,  # Store generated HL7 result
+                'observation_values': {},  # Store observation values
+                'observation_interpretations': {},  # Store interpretations
             }
         
         return message_id
@@ -53,7 +55,8 @@ class MessageQueue:
         with self._lock:
             return {k: v for k, v in self._messages.items() if v['status'] == 'pending'}
     
-    def update_status(self, message_id: str, status: str, result_message: Optional[str] = None) -> bool:
+    def update_status(self, message_id: str, status: str, result_message: Optional[str] = None, 
+                     observation_values: Optional[Dict] = None, observation_interpretations: Optional[Dict] = None) -> bool:
         """
         Update the status of a message.
         
@@ -61,6 +64,8 @@ class MessageQueue:
             message_id: UUID of the message
             status: New status (pending, processed, discarded)
             result_message: Optional HL7 result message
+            observation_values: Optional observation values dict
+            observation_interpretations: Optional interpretation dict
             
         Returns:
             True if updated successfully, False if message not found
@@ -72,6 +77,10 @@ class MessageQueue:
                     self._messages[message_id]['processed_at'] = datetime.now().isoformat()
                 if result_message:
                     self._messages[message_id]['result_message'] = result_message
+                if observation_values:
+                    self._messages[message_id]['observation_values'] = observation_values
+                if observation_interpretations:
+                    self._messages[message_id]['observation_interpretations'] = observation_interpretations
                 return True
             return False
     
